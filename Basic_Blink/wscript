@@ -1,0 +1,119 @@
+#!/usr/bin/env python
+import os
+APPNAME = 'blink'
+VERSION = '0.1'
+
+top = '.'
+out = 'build'
+
+SMING_HOME = '/Users/dmitry/dev/Sming/Sming'
+ESP_HOME = '/opt/esp-open-sdk'
+
+
+def options(ctx):
+    ctx.load('compiler_c compiler_cxx python')
+
+    ctx.add_option("--shared", action="store_true", help="build shared library")
+    ctx.add_option("--static", action="store_true", help="build static library")
+    ctx.add_option("--fgghstatic", action="store_true", help="build static library11")
+   
+def configure(ctx):
+    
+    ctx.env.CC = os.path.join(ESP_HOME, 'xtensa-lx106-elf/bin/xtensa-lx106-elf-gcc')
+    ctx.env.CXX = os.path.join(ESP_HOME, 'xtensa-lx106-elf/bin/xtensa-lx106-elf-g++')
+
+    ctx.env.LINK_CC = os.path.join(ESP_HOME, 'xtensa-lx106-elf/bin/xtensa-lx106-elf-gcc')    
+    ctx.env.LINK_CXX = os.path.join(ESP_HOME, 'xtensa-lx106-elf/bin/xtensa-lx106-elf-g++')
+    
+    ctx.env.AR = os.path.join(ESP_HOME, 'xtensa-lx106-elf/bin/xtensa-lx106-elf-ar')
+    ctx.env.ARFLAGS = ['cru']
+    
+    ctx.load('compiler_c compiler_cxx python')
+    
+    ctx.check_python_version((2,7,6))
+    ctx.env.CFLAGS = ['-Os', '-g', '-Wpointer-arith', '-Wundef', '-Werror', '-Wl,-EL', '-nostdlib', '-mlongcalls', '-mtext-section-literals', '-finline-functions', '-fdata-sections', '-ffunction-sections', '-D__ets__', '-DICACHE_FLASH', '-DARDUINO=106']
+    ctx.env.CXXFLAGS = ctx.env.CFLAGS + ['-fno-rtti', '-fno-exceptions', '-std=c++11']
+    
+    
+    
+    # print(os.path.join(ESP_HOME, 'xtensa-lx106-elf/bin/xtensa-lx106-elf-g++'))
+    
+    ctx.env.INCLUDES = [
+        SMING_HOME,
+        ESP_HOME,
+        'include',
+        os.path.join(SMING_HOME, 'incude'),
+        os.path.join(SMING_HOME, 'Wiring'),
+        os.path.join(SMING_HOME, 'Libraries'),
+        os.path.join(SMING_HOME, 'SmingCore'),
+        os.path.join(SMING_HOME, 'system/include'),
+        os.path.join(ESP_HOME, 'sdk/include')
+    ]
+
+    ctx.env.STLIBPATH = [
+        os.path.join(SMING_HOME,'compiler/lib'),
+        os.path.join(ESP_HOME,'sdk/lib'),
+        os.path.join(ESP_HOME, 'xtensa-lx106-elf/xtensa-lx106-elf/sysroot/usr/lib')
+    ]
+
+
+
+    ctx.env.STLIB = [        
+        'main',
+        'sming',
+        'phy',
+        'pp',        
+        'lwip',
+        'net80211',
+        'wpa',
+        'hal',
+        'microc',
+        'microgcc',
+    ]
+
+    ctx.env.COMPILE = 'gcc'
+    ctx.env.LDSCRIPT = os.path.join(SMING_HOME, 'compiler/ld/eagle.app.v6.cpp.ld')
+    
+    
+    
+    ctx.env.LINKFLAGS = [
+        '-nostdlib',
+        '-u call_user_start',
+        '-Wl,-static',
+        '-Wl,--gc-sections',
+        '-T'+ctx.env.LDSCRIPT,
+        '-Wl,--start-group'
+    ]
+
+    ctx.env.LDFLAGS = ['-Wl,--end-group']
+
+    # print(ctx.env.LDSCRIPT)
+    
+    ctx.check_cxx(lib='microc')
+    ctx.check_cxx(lib='hal')
+    ctx.check_cxx(lib='phy')
+    ctx.check_cxx(lib='pp')
+    ctx.check_cxx(lib='net80211')
+    ctx.check_cxx(lib='openlwip')
+    ctx.check_cxx(lib='wpa')
+    
+    ctx.check_cxx(lib='main')
+    ctx.check_cxx(lib='sming')
+    
+    # if sys.platform == 'win32':
+    #     conf.env.LIBPATH_MYLIB   = ['/custom/windows/path/lib']
+    #     conf.env.INCLUDES_MYLIB  = ['/custom/windows/path/include']
+
+
+def build(ctx):
+    # print(ctx.path.ant_glob('**/*.cpp'))    
+    # ctx.shlib(source=ctx.path.ant_glob('**/*.c'))
+    # ctx.stlib(source=ctx.path.ant_glob(os.path.join(SMING_HOME,'appinit/*.cpp')))
+    ctx.program(
+        source=ctx.path.ant_glob('**/*.cpp')+[ctx.root.find_resource(os.path.join(SMING_HOME,'appinit/user_main.cpp'))],
+        target='app.out'
+    )
+    # ctx.program(use='sming')
+
+
+    # ctx.stlib(source=ctx.path.ant_glob('**/*.cpp'))
