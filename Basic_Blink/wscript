@@ -1,123 +1,29 @@
 #!/usr/bin/env python
 import os
 
+# Windows
+os.environ.SMING_HOME = 'C:/Users/User/Sming/Sming'
+os.environ.ESP_HOME = 'C:/Espressif'
+
+# MacOS / Linux
+# os.environ.SMING_HOME = '/opt/sming/sming'
+# os.environ.ESP_HOME = '/opt/esp-open-sdk'
+
+
 APPNAME = 'blink'
 VERSION = '0.1'
 
-top = '.'
-out = 'build'
-
-SMING_HOME = '/Users/dmitry/dev/Sming/Sming'
-ESP_HOME = '/opt/esp-open-sdk'
+target = 'app'
 
 
-def options(ctx):
-    ctx.load('compiler_c compiler_cxx python')
 
-    ctx.add_option("--shared", action="store_true", help="build shared library")
-    ctx.add_option("--static", action="store_true", help="build static library")
-    ctx.add_option("--fgghstatic", action="store_true", help="build static library11")
-
+def options(ctx):    
+    ctx.load('sming-project', tooldir=os.path.normpath(os.path.join(os.environ.SMING_HOME, 'waf')))
 
 def configure(ctx):
-    # Temp hardcoeded until have conditionals
-    ctx.env.FW_APP = 0
-    ctx.env.FW_MODE = 0
-    ctx.env.FW_FREQDIV = 0
-    ctx.env.FW_SIZE = 0
-
-    ctx.env.CC = os.path.join(ESP_HOME, 'xtensa-lx106-elf/bin/xtensa-lx106-elf-gcc')
-    ctx.env.CXX = os.path.join(ESP_HOME, 'xtensa-lx106-elf/bin/xtensa-lx106-elf-g++')
-
-    ctx.env.LINK_CC = os.path.join(ESP_HOME, 'xtensa-lx106-elf/bin/xtensa-lx106-elf-gcc')
-    ctx.env.LINK_CXX = os.path.join(ESP_HOME, 'xtensa-lx106-elf/bin/xtensa-lx106-elf-g++')
-
-    ctx.env.AR = os.path.join(ESP_HOME, 'xtensa-lx106-elf/bin/xtensa-lx106-elf-ar')
-    ctx.env.ARFLAGS = ['cru']
-
-    ctx.load('compiler_c compiler_cxx python')
-
-    ctx.check_python_version((2, 7, 6))
-    ctx.env.CFLAGS = ['-Os', '-g', '-Wpointer-arith', '-Wundef', '-Werror', '-Wl,-EL', '-nostdlib', '-mlongcalls', '-mtext-section-literals', '-finline-functions', '-fdata-sections', '-ffunction-sections', '-D__ets__', '-DICACHE_FLASH', '-DARDUINO=106']
-    ctx.env.CXXFLAGS = ctx.env.CFLAGS + ['-fno-rtti', '-fno-exceptions', '-std=c++11']
-
-    if os.sys.platform == 'win32':
-        ctx.env.SHELL_MV = 'move'
-    elif os.sys.platform == 'darwin':
-        ctx.env.SHELL_MV = 'mv'
-
-    ctx.env.OBJCOPY = os.path.join(ESP_HOME, 'xtensa-lx106-elf/bin/xtensa-lx106-elf-objcopy')
-    ctx.env.GEN_APPBIN = os.path.join(ESP_HOME, 'sdk/tools/gen_appbin.py')
-
-    ctx.env.INCLUDES = [
-        SMING_HOME,
-        ESP_HOME,
-        'include',
-        os.path.join(SMING_HOME, 'incude'),
-        os.path.join(SMING_HOME, 'Wiring'),
-        os.path.join(SMING_HOME, 'Libraries'),
-        os.path.join(SMING_HOME, 'SmingCore'),
-        os.path.join(SMING_HOME, 'system/include'),
-        os.path.join(ESP_HOME, 'sdk/include')
-    ]
-
-    ctx.env.STLIBPATH = [
-        os.path.join(SMING_HOME, 'compiler/lib'),
-        os.path.join(ESP_HOME, 'sdk/lib'),
-        os.path.join(ESP_HOME, 'xtensa-lx106-elf/xtensa-lx106-elf/sysroot/usr/lib')
-    ]
-
-    ctx.env.STLIB = [
-        'main',
-        'sming',
-        'phy',
-        'pp',
-        'lwip',
-        'net80211',
-        'wpa',
-        'hal',
-        'microc',
-        'microgcc',
-    ]
-
-    ctx.env.COMPILE = 'gcc'
-    ctx.env.LDSCRIPT = os.path.join(SMING_HOME, 'compiler/ld/eagle.app.v6.cpp.ld')
-
-    ctx.env.LINKFLAGS = [
-        '-nostdlib',
-        '-u call_user_start',
-        '-Wl,-static',
-        '-Wl,--gc-sections',
-        '-T'+ctx.env.LDSCRIPT,
-        '-Wl,--start-group'
-    ]
-
-    ctx.env.LDFLAGS = ['-Wl,--end-group']
-
-    init_template = 'void init() {}'
-    ctx.check_cxx(lib='microc', fragment=init_template)
-    ctx.check_cxx(lib='hal', fragment=init_template)
-    ctx.check_cxx(lib='phy', fragment=init_template)
-    ctx.check_cxx(lib='pp', fragment=init_template)
-    ctx.check_cxx(lib='net80211', fragment=init_template)
-    ctx.check_cxx(lib='openlwip', fragment=init_template)
-    ctx.check_cxx(lib='wpa', fragment=init_template)
-
-    ctx.check_cxx(lib='main', fragment=init_template)
-    ctx.check_cxx(lib='sming', fragment=init_template)
-
+    # print(os.path.normpath(os.path.join(os.environ.SMING_HOME, 'waf')))
+    ctx.load('sming-project', tooldir=os.path.normpath(os.path.join(os.environ.SMING_HOME, 'waf')))    
+    pass
 
 def build(ctx):
-
-    ctx.program(
-        source=ctx.path.ant_glob('**/*.cpp')+[ctx.root.find_resource(os.path.join(SMING_HOME, 'appinit/user_main.cpp'))],
-        target='app.out'
-    )
-
-    ctx(rule='${OBJCOPY} --only-section .text -O binary ${SRC} ${TGT}', source='app.out', target='eagle.app.v6.text.bin', name='eagle.app.v6.text.bin')
-    ctx(rule='${OBJCOPY} --only-section .data -O binary ${SRC} ${TGT}', source='app.out', target='eagle.app.v6.data.bin')
-    ctx(rule='${OBJCOPY} --only-section .rodata -O binary ${SRC} ${TGT}', source='app.out', target='eagle.app.v6.rodata.bin')
-    ctx(rule='${OBJCOPY} --only-section .irom0.text -O binary ${SRC} ${TGT}', source='app.out', target='eagle.app.v6.irom0text.bin')
-
-    if ctx.env.FW_APP == 0:
-        ctx(rule='${GEN_APPBIN} ${SRC} 0 0 0 0', source='app.out', target='eagle.app.flash.bin')
+    ctx.load('sming-project', tooldir=os.path.normpath(os.path.join(os.environ.SMING_HOME, 'waf')))
