@@ -1,0 +1,6 @@
+See file:///Users/dmitry/dev/Sming/Basic_Blink/build/tmp/compileAppExecutableAppCpp/output.txt for all output for compileAppExecutableAppCpp.
+compiling user_main.cpp successful.
+
+compiling application.cpp successful.
+
+Finished compileAppExecutableAppCpp, see full log file:///Users/dmitry/dev/Sming/Basic_Blink/build/tmp/compileAppExecutableAppCpp/output.txt.

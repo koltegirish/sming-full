@@ -1,0 +1,195 @@
+apply plugin: 'cpp'
+apply plugin: 'c'
+
+def ESP_HOME = System.getenv('ESP_HOME')
+def SMING_HOME = System.getenv('SMING_HOME')
+def LDSCRIPT = [SMING_HOME,"compiler/ld/eagle.app.v6.cpp.ld"].join(File.separator)
+
+
+// println "$ESP_HOME/sdk/include"
+// def CFLAGS = "-Os -g -Wpointer-arith -Wundef -Werror -Wl,-EL -nostdlib -mlongcalls -mtext-section-literals -finline-functions -fdata-sections -ffunction-sections -D__ets__ -DICACHE_FLASH -DARDUINO=106"
+// def CFLAGS = ['-Os', '-g', '-Wpointer-arith', '-Wundef', '-Werror', '-Wl,-EL', '-nostdlib', '-mlongcalls', '-mtext-section-literals', '-finline-functions', '-fdata-sections', '-ffunction-sections', '-D__ets__', '-DICACHE_FLASH', '-DARDUINO=106']
+
+// def CPPFLAGS = "$CFLAGS "
+
+model {
+  toolChains {
+    gcc (Gcc) {
+     target("lx106") {
+      path "$ESP_HOME/xtensa-lx106-elf/bin"
+      path "$SMING_HOME/compiler/ld"
+      
+
+      eachPlatform {
+        cCompiler.executable = "xtensa-lx106-elf-gcc"
+        cppCompiler.executable = "xtensa-lx106-elf-g++"
+        // cppCompiler.withArguments { args ->
+        //   args << CPPFLAGS
+        // }        
+        linker.executable = "xtensa-lx106-elf-gcc"        
+        // linker.withArguments { args ->
+        //   args.addAll(['-nostdlib', '-u call_user_start', '-Wl,-static', '-Wl,--gc-sections', "-T${LDSCRIPT}"])
+        // }
+
+        // staticLibArchiver.withArguments { args ->
+        //   args.remove "CUSTOM"
+        // }        
+        staticLibArchiver.executable = "xtensa-lx106-elf-ar"
+      }
+     }
+    }           
+  }
+
+  platforms {
+    lx106 {
+      architecture "lx106"
+    }
+  }
+
+  repositories {
+    // libs(PrebuiltLibraries) { libs ->
+    //     def myLibraryList = ['main', 'sming', 'phy', 'pp', 'lwip', 'net80211', 'wpa', 'hal', 'microc', 'microgcc']
+    //       myLIbraryList.each { myLibrary ->
+    //         libs.create(myLibrary) {
+    //             headers.srcDir "libraries/${myLibrary}/headers"
+    //             binaries.withType(StaticLibraryBinary) {
+    //             def libName = "lib$myLibrary.a"
+    //             staticLibraryFile = file("$SMING_HOME/compiler/lib/${libName}")
+    //           }
+    //         }
+    //     }
+    // }
+    
+
+
+    libs(PrebuiltLibraries) {
+      microc {
+        // headers.srcDir "3rd-party-lib/util/src/util/headers"
+        binaries.withType(StaticLibraryBinary) {
+          def libName = 'libmicroc.a'
+          staticLibraryFile = file("$SMING_HOME/compiler/lib/${libName}")
+        }
+      }
+
+      microgcc {
+        // headers.srcDir "3rd-party-lib/util/src/util/headers"
+        binaries.withType(StaticLibraryBinary) {
+          def libName = 'libmicrogcc.a'
+          staticLibraryFile = file("$SMING_HOME/compiler/lib/${libName}")
+        }
+      }
+
+      hal {
+        // headers.srcDir "3rd-party-lib/util/src/util/headers"
+        binaries.withType(StaticLibraryBinary) {
+          def libName = 'libhal.a'
+          staticLibraryFile = file("$ESP_HOME/xtensa-lx106-elf/xtensa-lx106-elf/sysroot/usr/lib/${libName}")
+        }
+      }
+
+      phy {
+        // headers.srcDir "3rd-party-lib/util/src/util/headers"
+        binaries.withType(StaticLibraryBinary) {
+          def libName = 'libphy.a'
+          staticLibraryFile = file("$ESP_HOME/sdk/lib/${libName}")
+        }
+      }
+
+      pp {
+        // headers.srcDir "3rd-party-lib/util/src/util/headers"
+        binaries.withType(StaticLibraryBinary) {
+          def libName = 'libpp.a'
+          staticLibraryFile = file("$ESP_HOME/sdk/lib/${libName}")
+        }
+      }
+
+      net80211 {
+        // headers.srcDir "3rd-party-lib/util/src/util/headers"
+        binaries.withType(StaticLibraryBinary) {
+          def libName = 'libnet80211.a'
+          staticLibraryFile = file("$ESP_HOME/sdk/lib/${libName}")
+        }
+      }
+
+
+      lwip {
+        // headers.srcDir "3rd-party-lib/util/src/util/headers"
+        binaries.withType(StaticLibraryBinary) {
+          def libName = 'liblwip.a'
+          staticLibraryFile = file("$ESP_HOME/sdk/lib/${libName}")
+        }
+      }
+
+      wpa {
+        // headers.srcDir "3rd-party-lib/util/src/util/headers"
+        binaries.withType(StaticLibraryBinary) {
+          def libName = 'libwpa.a'
+          staticLibraryFile = file("$ESP_HOME/sdk/lib/${libName}")
+        }
+      }
+
+      main {
+        // headers.srcDir "3rd-party-lib/util/src/util/headers"
+        binaries.withType(StaticLibraryBinary) {
+          def libName = 'libmain.a'
+          staticLibraryFile = file("$ESP_HOME/sdk/lib/${libName}")
+        }
+      }
+
+      sming {
+        // headers.srcDir "3rd-party-lib/util/src/util/headers"
+        binaries.withType(StaticLibraryBinary) {
+          def libName = 'libsming.a'
+          staticLibraryFile = file("$SMING_HOME/compiler/lib/${libName}")
+        }
+      }
+
+    }
+  }
+
+
+  components {
+    app(NativeExecutableSpec) {
+      targetPlatform "lx106"
+      sources {        
+        cpp {
+          lib library: 'microc', linkage: 'static'
+          lib library: 'microgcc', linkage: 'static'
+          lib library: 'hal', linkage: 'static'
+          lib library: 'phy', linkage: 'static'
+          lib library: 'pp', linkage: 'static'
+          lib library: 'net80211', linkage: 'static'
+          lib library: 'lwip', linkage: 'static'
+          lib library: 'wpa', linkage: 'static'
+          lib library: 'main', linkage: 'static'
+          lib library: 'sming', linkage: 'static'
+
+          source {
+            srcDirs "app", "$SMING_HOME/appinit"
+            include "*.cpp"
+          }            
+          exportedHeaders {              
+            srcDirs "include","$ESP_HOME/sdk/include","$SMING_HOME/include", "$SMING_HOME", "$SMING_HOME/system/include", "$SMING_HOME/Wiring", "$SMING_HOME/Libraries", "$SMING_HOME/SmingCore"
+          }
+        }  
+      }
+      // lib library: 'microc', linkage: 'static'
+
+      binaries.all {      
+        // lib library: 'sming', linkage: 'static'
+
+          cCompiler.args '-Os', '-g', '-Wpointer-arith', '-Wundef', '-Werror', '-Wl,-EL', '-nostdlib', '-mlongcalls', '-mtext-section-literals', '-finline-functions', '-fdata-sections', '-ffunction-sections', '-D__ets__', '-DICACHE_FLASH', '-DARDUINO=106'
+          cppCompiler.args '-Os', '-g', '-Wpointer-arith', '-Wundef', '-Werror', '-Wl,-EL', '-nostdlib', '-mlongcalls', '-mtext-section-literals', '-finline-functions', '-fdata-sections', '-ffunction-sections', '-D__ets__', '-DICACHE_FLASH', '-DARDUINO=106', '-fno-rtti', '-fno-exceptions', '-std=c++11'
+          linker.args '-nostdlib', '-u call_user_start', '-Wl,-static', '-Wl,--gc-sections', "-T${LDSCRIPT}"
+          staticLibArchiver.args 'cru'
+          // cppCompiler.define 'DEBUG'
+          // linker.args '/DEBUG'
+
+      }
+    }
+  }
+}
+
+task wrapper(type: Wrapper) {
+   gradleVersion = '2.4' //version required
+}

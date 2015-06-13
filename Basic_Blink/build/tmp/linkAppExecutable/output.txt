@@ -1,0 +1,6 @@
+See file:///Users/dmitry/dev/Sming/Basic_Blink/build/tmp/linkAppExecutable/output.txt for all output for linkAppExecutable.
+linking app failed.
+/opt/esp-open-sdk/xtensa-lx106-elf/bin/../lib/gcc/xtensa-lx106-elf/4.8.2/../../../../xtensa-lx106-elf/bin/ld: cannot open linker script file ../ld/eagle.rom.addr.v6.ld: No such file or directory
+collect2: error: ld returned 1 exit status
+
+Finished linkAppExecutable, see full log file:///Users/dmitry/dev/Sming/Basic_Blink/build/tmp/linkAppExecutable/output.txt.

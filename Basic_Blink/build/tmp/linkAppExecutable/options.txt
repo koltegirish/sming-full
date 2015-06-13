@@ -1,0 +1,19 @@
+-o
+/Users/dmitry/dev/Sming/Basic_Blink/build/binaries/appExecutable/app
+/Users/dmitry/dev/Sming/Basic_Blink/build/objs/appExecutable/appCpp/1fl5qh7n6iwggeacf6e3vf1x/application.o
+/Users/dmitry/dev/Sming/Basic_Blink/build/objs/appExecutable/appCpp/8mq0u7skiyqs7yw46k5ossl8a/user_main.o
+/Users/dmitry/dev/Sming/Sming/compiler/lib/libmicroc.a
+/Users/dmitry/dev/Sming/Sming/compiler/lib/libmicrogcc.a
+/opt/esp-open-sdk/xtensa-lx106-elf/xtensa-lx106-elf/sysroot/usr/lib/libhal.a
+/opt/esp-open-sdk/sdk/lib/libphy.a
+/opt/esp-open-sdk/sdk/lib/libpp.a
+/opt/esp-open-sdk/sdk/lib/libnet80211.a
+/opt/esp-open-sdk/sdk/lib/liblwip.a
+/opt/esp-open-sdk/sdk/lib/libwpa.a
+/opt/esp-open-sdk/sdk/lib/libmain.a
+/Users/dmitry/dev/Sming/Sming/compiler/lib/libsming.a
+-nostdlib
+"-u call_user_start"
+-Wl,-static
+-Wl,--gc-sections
+-T/Users/dmitry/dev/Sming/Sming/compiler/ld/eagle.app.v6.cpp.ld
