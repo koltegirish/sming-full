@@ -72,10 +72,21 @@ else
       ESP_HOME ?= /opt/esp-open-sdk
       include Makefile-linux.mk     
   endif
+  ifeq ($(UNAME),FreeBSD)
+      # Freebsd Detected
+      UNAME := FreeBSD
+
+      # Default SMING_HOME. Can be overriden.
+      SMING_HOME ?= /usr/local/esp8266/Sming/Sming
+
+      # Default ESP_HOME. Can be overriden.
+      ESP_HOME ?= /usr/local/esp8266/esp-open-sdk
+      include $(SMING_HOME)/Makefile-bsd.mk     
+  endif
 endif
 
 export COMPILE := gcc
-export PATH := "$(ESP_HOME)/xtensa-lx106-elf/bin:$(PATH)"
+export PATH := $(ESP_HOME)/xtensa-lx106-elf/bin:$(PATH)
 XTENSA_TOOLS_ROOT := $(ESP_HOME)/xtensa-lx106-elf/bin
 
 # Sming Framework Path
@@ -99,7 +110,7 @@ LIBS		= microc microgcc hal phy pp net80211 lwip wpa main
 
 # compiler flags using during compilation of source files. Add '-pg' for debugging
 CFLAGS		= -Os -g -Wpointer-arith -Wundef -Werror -Wl,-EL -nostdlib -mlongcalls -mtext-section-literals -finline-functions -fdata-sections -ffunction-sections -D__ets__ -DICACHE_FLASH -DARDUINO=106
-CXXFLAGS	= $(CFLAGS) -fno-rtti -fno-exceptions -std=c++11
+CXXFLAGS	= $(CFLAGS) -fno-rtti -fno-exceptions -std=c++11 -felide-constructors
 
 # linker flags used to generate the main object file
 LDFLAGS		= -nostdlib -u call_user_start -Wl,-static -Wl,--gc-sections
