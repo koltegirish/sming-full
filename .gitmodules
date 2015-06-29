@@ -2,3 +2,7 @@
 	path = core
 url=https://github.com/esp-sming/sming-core.git
 	branch = master
+[submodule "examples"]
+	path = examples
+	url = https://github.com/esp-sming/sming-examples.git
+	branch = master
