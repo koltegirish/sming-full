@@ -1,0 +1,4 @@
+[submodule "core"]
+	path = core
+	url = git@github.com:esp-sming/sming-core.git
+	branch = master
